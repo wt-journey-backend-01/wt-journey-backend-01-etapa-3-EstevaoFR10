@@ -99,6 +99,17 @@ async function createAgente(req, res) {
             });
         }
 
+        // Validar cargo
+        if (dadosAgente.cargo && !['delegado', 'inspetor'].includes(dadosAgente.cargo)) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    cargo: "O campo 'cargo' pode ser somente 'delegado' ou 'inspetor'"
+                }
+            });
+        }
+
         // Validação de formato de data
         const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
         if (!dateRegex.test(dadosAgente.dataDeIncorporacao)) {
@@ -173,6 +184,17 @@ async function updateAgentePUT(req, res) {
                     nome: !dadosAgente.nome ? "Campo 'nome' é obrigatório" : null,
                     dataDeIncorporacao: !dadosAgente.dataDeIncorporacao ? "Campo 'dataDeIncorporacao' é obrigatório" : null,
                     cargo: !dadosAgente.cargo ? "Campo 'cargo' é obrigatório" : null
+                }
+            });
+        }
+
+        // Validar cargo
+        if (dadosAgente.cargo && !['delegado', 'inspetor'].includes(dadosAgente.cargo)) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    cargo: "O campo 'cargo' pode ser somente 'delegado' ou 'inspetor'"
                 }
             });
         }
@@ -274,6 +296,17 @@ async function updateAgente(req, res) {
             if (campo === 'nome' && valor === '') {
                 return res.status(400).send();
             }
+        }
+
+        // Validar cargo se fornecido
+        if (dadosAgente.cargo && !['delegado', 'inspetor'].includes(dadosAgente.cargo)) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    cargo: "O campo 'cargo' pode ser somente 'delegado' ou 'inspetor'"
+                }
+            });
         }
 
         // Validação básica de formato de data se fornecida

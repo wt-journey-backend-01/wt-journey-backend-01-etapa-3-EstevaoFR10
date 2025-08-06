@@ -17,6 +17,11 @@ async function update(id, dadosAgente) {
     // Remover o campo 'id' dos dados a serem atualizados para proteger o ID
     const { id: _, ...dadosLimpos } = dadosAgente;
     
+    // Validar se dadosLimpos tem pelo menos um campo para atualizar
+    if (Object.keys(dadosLimpos).length === 0) {
+        return null; // Não há dados para atualizar
+    }
+    
     const [agenteAtualizado] = await db('agentes')
         .where({ id })
         .update(dadosLimpos)

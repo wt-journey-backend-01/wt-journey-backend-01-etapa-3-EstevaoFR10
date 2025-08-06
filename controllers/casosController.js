@@ -16,15 +16,18 @@ async function getAllCasos(req, res) {
             });
         }
         
-        // Validar agente_id se fornecido (deve ser número)
-        if (agente_id && isNaN(parseInt(agente_id))) {
-            return res.status(400).json({
-                status: 400,
-                message: "Parâmetros inválidos",
-                errors: {
-                    agente_id: "O campo 'agente_id' deve ser um número válido"
-                }
-            });
+        // Validar agente_id se fornecido (deve ser número positivo)
+        if (agente_id) {
+            const agenteIdNum = parseInt(agente_id);
+            if (isNaN(agenteIdNum) || agenteIdNum <= 0) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "Parâmetros inválidos",
+                    errors: {
+                        agente_id: "O campo 'agente_id' deve ser um número inteiro positivo"
+                    }
+                });
+            }
         }
 
         let casos;
@@ -146,6 +149,18 @@ async function createCaso(req, res) {
             });
         }
 
+        // Validar agente_id (deve ser número válido)
+        const agenteIdNum = parseInt(dadosCaso.agente_id);
+        if (isNaN(agenteIdNum) || agenteIdNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    agente_id: "O campo 'agente_id' deve ser um número inteiro positivo"
+                }
+            });
+        }
+
         // Validar status
         if (dadosCaso.status && !['aberto', 'solucionado'].includes(dadosCaso.status)) {
             return res.status(400).json({
@@ -215,6 +230,18 @@ async function updateCasoPUT(req, res) {
                     descricao: !dadosCaso.descricao ? "Campo 'descricao' é obrigatório" : null,
                     status: !dadosCaso.status ? "Campo 'status' é obrigatório" : null,
                     agente_id: !dadosCaso.agente_id ? "Campo 'agente_id' é obrigatório" : null
+                }
+            });
+        }
+        
+        // Validar agente_id (deve ser número válido)
+        const agenteIdNum = parseInt(dadosCaso.agente_id);
+        if (isNaN(agenteIdNum) || agenteIdNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    agente_id: "O campo 'agente_id' deve ser um número inteiro positivo"
                 }
             });
         }
@@ -302,9 +329,20 @@ async function updateCasoPUT(req, res) {
                 return res.status(400).send();
             }
 
-            // Se o valor não é string, null ou undefined
-            if (valor !== null && valor !== undefined && typeof valor !== 'string') {
-                return res.status(400).send();
+            // Se o valor não é string, null ou undefined (exceto agente_id que deve ser número)
+            if (valor !== null && valor !== undefined) {
+                if (campo === 'agente_id') {
+                    // agente_id deve ser número ou string que representa número
+                    if (typeof valor !== 'string' && typeof valor !== 'number') {
+                        return res.status(400).send();
+                    }
+                    // Se é string, deve ser conversível para número
+                    if (typeof valor === 'string' && isNaN(parseInt(valor))) {
+                        return res.status(400).send();
+                    }
+                } else if (typeof valor !== 'string') {
+                    return res.status(400).send();
+                }
             }
         }
 
@@ -321,6 +359,18 @@ async function updateCasoPUT(req, res) {
 
         // Verificar se agente existe se fornecido
         if (dadosCaso.agente_id) {
+            // Validar se agente_id é um número válido
+            const agenteIdNum = parseInt(dadosCaso.agente_id);
+            if (isNaN(agenteIdNum) || agenteIdNum <= 0) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "Parâmetros inválidos",
+                    errors: {
+                        agente_id: "O campo 'agente_id' deve ser um número inteiro positivo"
+                    }
+                });
+            }
+            
             const agente = await agentesRepository.findById(dadosCaso.agente_id);
             if (!agente) {
                 return res.status(400).json({
