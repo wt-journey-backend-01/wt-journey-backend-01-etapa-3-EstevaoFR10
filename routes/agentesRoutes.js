@@ -12,7 +12,7 @@ router.get('/:id', agentesController.getAgenteById);
 router.post('/', agentesController.createAgente);
 
 // Rota para atualizar um agente completamente
-router.put('/:id', agentesController.updateAgente);
+router.put('/:id', agentesController.updateAgentePUT);
 
 // Rota para atualizar um agente parcialmente
 router.patch('/:id', agentesController.updateAgente);

@@ -49,6 +49,18 @@ async function findAllSorted(sortBy) {
     return await db('agentes').select('*');
 }
 
+async function findByCargoSorted(cargo, sortBy) {
+    let query = db('agentes').where('cargo', cargo);
+    
+    if (sortBy === 'dataDeIncorporacao') {
+        query = query.orderBy('dataDeIncorporacao', 'asc');
+    } else if (sortBy === '-dataDeIncorporacao') {
+        query = query.orderBy('dataDeIncorporacao', 'desc');
+    }
+    
+    return await query;
+}
+
 module.exports = {
     findAll,
     findById,
@@ -56,5 +68,6 @@ module.exports = {
     update,
     deleteById,
     findByCargo,
-    findAllSorted
+    findAllSorted,
+    findByCargoSorted
 };

@@ -4,6 +4,28 @@ const agentesRepository = require("../repositories/agentesRepository");
 async function getAllCasos(req, res) {
     try {
         const { agente_id, status, q } = req.query;
+        
+        // Validar status se fornecido
+        if (status && !['aberto', 'solucionado'].includes(status)) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    status: "O campo 'status' pode ser somente 'aberto' ou 'solucionado'"
+                }
+            });
+        }
+        
+        // Validar agente_id se fornecido (deve ser número)
+        if (agente_id && isNaN(parseInt(agente_id))) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    agente_id: "O campo 'agente_id' deve ser um número válido"
+                }
+            });
+        }
 
         let casos;
 
@@ -117,19 +139,78 @@ async function createCaso(req, res) {
                 message: "Agente não encontrado"
             });
         }
-
+        
         const novoCaso = await casosRepository.create(dadosCaso);
         res.status(201).json(novoCaso);
     } catch (error) {
-        res.status(500).json({
+        res.status(500).json({ 
             status: 500,
             message: 'Erro interno do servidor',
-            error: error.message
+            error: error.message 
         });
     }
 }
 
-async function updateCaso(req, res) {
+async function updateCasoPUT(req, res) {
+    try {
+        const { id } = req.params;
+        const dadosCaso = req.body;
+        
+        // PUT exige todos os campos obrigatórios
+        if (!dadosCaso.titulo || !dadosCaso.descricao || !dadosCaso.status || !dadosCaso.agente_id) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    titulo: !dadosCaso.titulo ? "Campo 'titulo' é obrigatório" : null,
+                    descricao: !dadosCaso.descricao ? "Campo 'descricao' é obrigatório" : null,
+                    status: !dadosCaso.status ? "Campo 'status' é obrigatório" : null,
+                    agente_id: !dadosCaso.agente_id ? "Campo 'agente_id' é obrigatório" : null
+                }
+            });
+        }
+        
+        // Validar status
+        if (!['aberto', 'solucionado'].includes(dadosCaso.status)) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    status: "O campo 'status' pode ser somente 'aberto' ou 'solucionado'"
+                }
+            });
+        }
+        
+        // Verificar se agente existe
+        const agente = await agentesRepository.findById(dadosCaso.agente_id);
+        if (!agente) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    agente_id: "Agente especificado não existe"
+                }
+            });
+        }
+        
+        const casoAtualizado = await casosRepository.update(id, dadosCaso);
+        
+        if (!casoAtualizado) {
+            return res.status(404).json({ 
+                status: 404,
+                message: 'Caso não encontrado'
+            });
+        }
+        
+        res.status(200).json(casoAtualizado);
+    } catch (error) {
+        res.status(500).json({ 
+            status: 500,
+            message: 'Erro interno do servidor',
+            error: error.message 
+        });
+    }
+}async function updateCaso(req, res) {
     try {
         const { id } = req.params;
         const dadosCaso = req.body;
@@ -238,5 +319,6 @@ module.exports = {
     getAgenteByCasoId,
     createCaso,
     updateCaso,
+    updateCasoPUT,
     deleteCaso
 };

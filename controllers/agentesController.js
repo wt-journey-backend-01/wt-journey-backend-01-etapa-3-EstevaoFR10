@@ -3,18 +3,41 @@ const agentesRepository = require("../repositories/agentesRepository");
 async function getAllAgentes(req, res) {
     try {
         const { cargo, sort } = req.query;
-
+        
+        // Validar cargo se fornecido
+        if (cargo && !['delegado', 'inspetor'].includes(cargo)) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    cargo: "O campo 'cargo' pode ser somente 'delegado' ou 'inspetor'"
+                }
+            });
+        }
+        
+        // Validar sort se fornecido
+        if (sort && !['dataDeIncorporacao', '-dataDeIncorporacao'].includes(sort)) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    sort: "O campo 'sort' pode ser somente 'dataDeIncorporacao' ou '-dataDeIncorporacao'"
+                }
+            });
+        }
+        
         let agentes;
-
-        if (cargo) {
+        
+        // Permitir filtros combinados
+        if (cargo && sort) {
+            agentes = await agentesRepository.findByCargoSorted(cargo, sort);
+        } else if (cargo) {
             agentes = await agentesRepository.findByCargo(cargo);
         } else if (sort) {
             agentes = await agentesRepository.findAllSorted(sort);
         } else {
             agentes = await agentesRepository.findAll();
-        }
-
-        res.status(200).json(agentes);
+        }        res.status(200).json(agentes);
     } catch (error) {
         res.status(500).json({
             status: 500,
@@ -96,6 +119,69 @@ async function createAgente(req, res) {
             status: 500,
             message: 'Erro interno do servidor',
             error: error.message
+        });
+    }
+}
+
+async function updateAgentePUT(req, res) {
+    try {
+        const { id } = req.params;
+        const dadosAgente = req.body;
+        
+        // PUT exige todos os campos obrigatórios
+        if (!dadosAgente.nome || !dadosAgente.dataDeIncorporacao || !dadosAgente.cargo) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    nome: !dadosAgente.nome ? "Campo 'nome' é obrigatório" : null,
+                    dataDeIncorporacao: !dadosAgente.dataDeIncorporacao ? "Campo 'dataDeIncorporacao' é obrigatório" : null,
+                    cargo: !dadosAgente.cargo ? "Campo 'cargo' é obrigatório" : null
+                }
+            });
+        }
+
+        // Validação de formato de data
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!dateRegex.test(dadosAgente.dataDeIncorporacao)) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    dataDeIncorporacao: "Campo 'dataDeIncorporacao' deve estar no formato YYYY-MM-DD"
+                }
+            });
+        }
+
+        // Verificar se não é data futura
+        const inputDate = new Date(dadosAgente.dataDeIncorporacao + 'T00:00:00');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (inputDate > today) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    dataDeIncorporacao: "Campo 'dataDeIncorporacao' não pode ser uma data futura"
+                }
+            });
+        }
+        
+        const agenteAtualizado = await agentesRepository.update(id, dadosAgente);
+        
+        if (!agenteAtualizado) {
+            return res.status(404).json({ 
+                status: 404,
+                message: 'Agente não encontrado'
+            });
+        }
+        
+        res.status(200).json(agenteAtualizado);
+    } catch (error) {
+        res.status(500).json({ 
+            status: 500,
+            message: 'Erro interno do servidor',
+            error: error.message 
         });
     }
 }
@@ -216,5 +302,6 @@ module.exports = {
     getAgenteById,
     createAgente,
     updateAgente,
+    updateAgentePUT,
     deleteAgente
 };
