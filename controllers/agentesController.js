@@ -128,6 +128,17 @@ async function updateAgentePUT(req, res) {
         const { id } = req.params;
         const dadosAgente = req.body;
         
+        // Verificar se está tentando alterar o ID
+        if (dadosAgente.id !== undefined) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    id: "Campo 'id' não pode ser alterado"
+                }
+            });
+        }
+        
         // PUT exige todos os campos obrigatórios
         if (!dadosAgente.nome || !dadosAgente.dataDeIncorporacao || !dadosAgente.cargo) {
             return res.status(400).json({

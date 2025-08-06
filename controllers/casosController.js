@@ -156,6 +156,17 @@ async function updateCasoPUT(req, res) {
         const { id } = req.params;
         const dadosCaso = req.body;
         
+        // Verificar se está tentando alterar o ID
+        if (dadosCaso.id !== undefined) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    id: "Campo 'id' não pode ser alterado"
+                }
+            });
+        }
+        
         // PUT exige todos os campos obrigatórios
         if (!dadosCaso.titulo || !dadosCaso.descricao || !dadosCaso.status || !dadosCaso.agente_id) {
             return res.status(400).json({

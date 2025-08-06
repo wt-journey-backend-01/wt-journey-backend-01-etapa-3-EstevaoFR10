@@ -19,7 +19,6 @@ router.put('/:id', casosController.updateCasoPUT);
 
 // Rota para atualizar um caso parcialmente
 router.patch('/:id', casosController.updateCaso);
-router.patch('/:id', casosController.updateCaso);
 
 // Rota para deletar um caso
 router.delete('/:id', casosController.deleteCaso);
