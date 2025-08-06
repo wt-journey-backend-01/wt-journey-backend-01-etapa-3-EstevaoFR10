@@ -50,6 +50,19 @@ async function getAllAgentes(req, res) {
 async function getAgenteById(req, res) {
     try {
         const { id } = req.params;
+        
+        // Validar se o ID é um número válido
+        const idNum = parseInt(id);
+        if (isNaN(idNum) || idNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Parâmetros inválidos',
+                errors: {
+                    id: "ID deve ser um número inteiro positivo"
+                }
+            });
+        }
+        
         const agente = await agentesRepository.findById(id);
 
         if (!agente) {
@@ -128,6 +141,18 @@ async function updateAgentePUT(req, res) {
         const { id } = req.params;
         const dadosAgente = req.body;
         
+        // Validar se o ID é um número válido
+        const idNum = parseInt(id);
+        if (isNaN(idNum) || idNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Parâmetros inválidos',
+                errors: {
+                    id: "ID deve ser um número inteiro positivo"
+                }
+            });
+        }
+        
         // Verificar se está tentando alterar o ID
         if (dadosAgente.id !== undefined) {
             return res.status(400).json({
@@ -201,6 +226,18 @@ async function updateAgente(req, res) {
     try {
         const { id } = req.params;
         const dadosAgente = req.body;
+
+        // Validar se o ID é um número válido
+        const idNum = parseInt(id);
+        if (isNaN(idNum) || idNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Parâmetros inválidos',
+                errors: {
+                    id: "ID deve ser um número inteiro positivo"
+                }
+            });
+        }
 
         // Verificar se está tentando alterar o ID
         if (dadosAgente.id !== undefined) {
@@ -289,6 +326,19 @@ async function updateAgente(req, res) {
 async function deleteAgente(req, res) {
     try {
         const { id } = req.params;
+        
+        // Validar se o ID é um número válido
+        const idNum = parseInt(id);
+        if (isNaN(idNum) || idNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Parâmetros inválidos',
+                errors: {
+                    id: "ID deve ser um número inteiro positivo"
+                }
+            });
+        }
+        
         const agenteDeletado = await agentesRepository.deleteById(id);
 
         if (!agenteDeletado) {

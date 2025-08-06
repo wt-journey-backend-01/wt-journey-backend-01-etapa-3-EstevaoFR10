@@ -52,6 +52,19 @@ async function getAllCasos(req, res) {
 async function getCasoById(req, res) {
     try {
         const { id } = req.params;
+        
+        // Validar se o ID é um número válido
+        const idNum = parseInt(id);
+        if (isNaN(idNum) || idNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Parâmetros inválidos',
+                errors: {
+                    id: "ID deve ser um número inteiro positivo"
+                }
+            });
+        }
+        
         const caso = await casosRepository.findById(id);
 
         if (!caso) {
@@ -74,6 +87,19 @@ async function getCasoById(req, res) {
 async function getAgenteByCasoId(req, res) {
     try {
         const { caso_id } = req.params;
+        
+        // Validar se o ID é um número válido
+        const idNum = parseInt(caso_id);
+        if (isNaN(idNum) || idNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Parâmetros inválidos',
+                errors: {
+                    caso_id: "ID deve ser um número inteiro positivo"
+                }
+            });
+        }
+        
         const caso = await casosRepository.findById(caso_id);
 
         if (!caso) {
@@ -156,6 +182,18 @@ async function updateCasoPUT(req, res) {
         const { id } = req.params;
         const dadosCaso = req.body;
         
+        // Validar se o ID é um número válido
+        const idNum = parseInt(id);
+        if (isNaN(idNum) || idNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Parâmetros inválidos',
+                errors: {
+                    id: "ID deve ser um número inteiro positivo"
+                }
+            });
+        }
+        
         // Verificar se está tentando alterar o ID
         if (dadosCaso.id !== undefined) {
             return res.status(400).json({
@@ -225,6 +263,18 @@ async function updateCasoPUT(req, res) {
     try {
         const { id } = req.params;
         const dadosCaso = req.body;
+
+        // Validar se o ID é um número válido
+        const idNum = parseInt(id);
+        if (isNaN(idNum) || idNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Parâmetros inválidos',
+                errors: {
+                    id: "ID deve ser um número inteiro positivo"
+                }
+            });
+        }
 
         // Verificar se está tentando alterar o ID
         if (dadosCaso.id !== undefined) {
@@ -305,6 +355,19 @@ async function updateCasoPUT(req, res) {
 async function deleteCaso(req, res) {
     try {
         const { id } = req.params;
+        
+        // Validar se o ID é um número válido
+        const idNum = parseInt(id);
+        if (isNaN(idNum) || idNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Parâmetros inválidos',
+                errors: {
+                    id: "ID deve ser um número inteiro positivo"
+                }
+            });
+        }
+        
         const casoDeletado = await casosRepository.deleteById(id);
 
         if (!casoDeletado) {
