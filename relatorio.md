@@ -1,85 +1,81 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 9 créditos restantes para usar o sistema de feedback AI.
+Você tem 8 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para EstevaoFR10:
 
-Nota final: **48.0/100**
+Nota final: **78.0/100**
 
-Olá, EstevaoFR10! 👋✨
+Olá, EstevaoFR10! 👋🚀
 
-Primeiramente, parabéns pelo esforço e dedicação em migrar sua API para usar PostgreSQL com Knex.js! 🎉 Isso não é tarefa fácil e você já fez um ótimo trabalho organizando a arquitetura do projeto em controllers, repositories, rotas e aplicando validações bem detalhadas. Isso mostra que você entende bem a importância de manter o código modular e limpo. 🙌
+Antes de qualquer coisa, quero te parabenizar pelo esforço e dedicação em migrar sua API para uma solução com PostgreSQL e Knex.js! 🎉 Isso não é trivial, e você estruturou seu projeto muito bem, com separação clara entre controllers, repositories e rotas. A organização do seu código está bem alinhada com o que se espera para um projeto escalável e modular. Isso é um baita ponto positivo! 👏
+
+Também vi que você conseguiu implementar corretamente várias funcionalidades importantes, como:
+
+- Listagem e busca por ID dos agentes e casos.
+- Criação e atualização parcial (PATCH) funcionando.
+- Validações de dados básicas com mensagens claras.
+- Tratamento de erros com status HTTP adequados.
+- Filtragem simples por status e agente nos casos.
+  
+Esses são avanços sólidos e mostram que você domina conceitos essenciais da construção de APIs REST com Node.js e banco relacional. Continue assim! 🌟
 
 ---
 
-## 🌟 O que você mandou muito bem
+## Vamos analisar juntos onde o código pode melhorar para destravar tudo? 🕵️‍♂️
 
-- **Organização do código:** Você manteve a estrutura modular com controllers, repositories e rotas, o que é fundamental para projetos escaláveis.  
-- **Validações robustas:** Os controllers de agentes e casos têm validações bem detalhadas, tratando formatos, campos obrigatórios, e até verificações de datas futuras. Isso é excelente para garantir a integridade dos dados!  
-- **Tratamento de erros:** Você implementou respostas com status HTTP adequados (400, 404, 500) e mensagens claras, o que melhora muito a experiência de quem consome sua API.  
-- **Seeds inteligentes:** No seed de agentes você já inseriu casos relacionados, garantindo integridade referencial e evitando erros de foreign keys.  
-- **Endpoints extras:** Você implementou filtros por status, agente, e buscas por palavras-chave nos casos, o que é um diferencial bacana!  
-- **Scripts no package.json:** O script `db:reset` para resetar migrations e seeds é uma mão na roda para desenvolvimento.  
+### 1. Estrutura do Projeto e Organização dos Arquivos
 
----
+Sua estrutura de diretórios está praticamente perfeita, muito bem organizada! 👏 Só reparei que no seu projeto, dentro da pasta `db/migrations`, o arquivo tem um nome estranho:
 
-## 🔎 Onde podemos melhorar — vamos destrinchar juntos!
+```
+20250806211729_solution_migrations.js.js
+```
 
-### 1. **Primeiro ponto: Migrations não encontradas ou mal configuradas**
+O sufixo `.js.js` pode ser um erro de digitação ao criar o arquivo de migration. Isso pode causar problemas na execução do Knex, porque ele espera arquivos `.js` simples. Além disso, não vi o conteúdo da migration, e isso é crucial para garantir que suas tabelas `agentes` e `casos` foram criadas com os campos e tipos corretos, incluindo as constraints de chave estrangeira.
 
-Eu reparei que na sua estrutura de pastas, dentro de `db/migrations`, você tem um arquivo chamado `20250806211729_solution_migrations.js.js` — note que o nome termina com `.js.js`, o que pode causar problemas na hora do Knex localizar e executar as migrations.
-
-Além disso, não recebi o conteúdo dessa migration, mas é fundamental que as tabelas `agentes` e `casos` estejam criadas corretamente com todos os campos e constraints (chaves primárias, estrangeiras e tipos corretos).
-
-Se as migrations não rodarem ou estiverem com problemas, o banco não terá as tabelas necessárias, o que derruba toda a API que depende delas, causando falhas em criação, atualização e deleção.
+**Por que isso importa?**  
+Se as migrations não estiverem corretas ou não forem executadas, o banco pode não ter as tabelas ou colunas necessárias, e isso vai quebrar todas as operações de CRUD, especialmente as que envolvem relacionamentos (como casos que dependem do agente). Isso explicaria erros em criar, atualizar e deletar agentes e casos.
 
 **Sugestão:**  
-- Renomeie o arquivo da migration para algo como `20250806211729_solution_migrations.js` (apenas um `.js`).  
-- Verifique se a migration cria as tabelas `agentes` e `casos` com as colunas corretas (id, nome, dataDeIncorporacao, cargo para agentes; id, titulo, descricao, status, agente_id para casos).  
-- Garanta que `agente_id` em `casos` seja uma foreign key referenciando `agentes.id`.  
+- Corrija o nome do arquivo para algo como `20250806211729_solution_migrations.js` (sem o `.js` repetido).  
+- Verifique o conteúdo da migration para garantir que as tabelas `agentes` e `casos` estão criadas com os campos corretos, tipos adequados e constraints de foreign key.  
+- Rode `npx knex migrate:latest` para aplicar as migrations.  
+- Depois, rode os seeds com `npx knex seed:run` para popular as tabelas.
 
-Se precisar, confira a documentação oficial do Knex sobre migrations para entender como criar e versionar seu esquema corretamente:  
+Se quiser um guia completo para migrations e seeds, recomendo muito este link oficial do Knex.js:  
 👉 https://knexjs.org/guide/migrations.html  
+👉 http://googleusercontent.com/youtube.com/knex-seeds
 
 ---
 
-### 2. **Configuração do Knex e conexão com o banco**
+### 2. Configuração do Banco e Conexão com Knex
 
-Seu arquivo `knexfile.js` parece correto em termos de estrutura, usando variáveis de ambiente para usuário, senha e banco. O arquivo `db/db.js` também está bem feito ao importar o ambiente e configurar o Knex.
+Seu arquivo `knexfile.js` está bem configurado, usando variáveis de ambiente para usuário, senha e banco, o que é excelente! Também vi que você tem um arquivo `db/db.js` que importa essa configuração e cria a instância do Knex, tudo correto.
 
-Porém, uma penalidade foi detectada: **o arquivo `.env` está presente no repositório**, o que não é recomendado por questões de segurança e boas práticas. Além disso, isso pode causar conflitos na hora de rodar o projeto em outros ambientes.
+Porém, é fundamental garantir que o `.env` esteja configurado corretamente e que o container do PostgreSQL esteja rodando e acessível na porta 5432.
 
-**Sugestão:**  
-- Remova o `.env` do repositório e adicione-o ao `.gitignore`.  
-- Garanta que as variáveis `POSTGRES_USER`, `POSTGRES_PASSWORD` e `POSTGRES_DB` estejam definidas corretamente no `.env` local para que a conexão funcione.  
-- Teste a conexão com o banco manualmente (por exemplo, usando `psql` ou uma ferramenta GUI) para garantir que o container Docker está rodando e aceitando conexões.  
-
-Se estiver com dúvidas em configurar o banco PostgreSQL com Docker e conectar via Knex, este vídeo é incrível para te guiar:  
-👉 http://googleusercontent.com/youtube.com/docker-postgresql-node  
+**Dica:**  
+- Confirme que seu `.env` tem as variáveis `POSTGRES_USER`, `POSTGRES_PASSWORD` e `POSTGRES_DB` definidas corretamente.  
+- Confirme que o container Docker está ativo com `docker ps` e que a porta 5432 está liberada.  
+- Se tiver dúvidas na configuração do Docker + PostgreSQL + Node.js, este vídeo é bem didático:  
+👉 http://googleusercontent.com/youtube.com/docker-postgresql-node
 
 ---
 
-### 3. **Seeds: Ordem e execução**
+### 3. Problemas com Atualização Completa (PUT) e Deleção de Agentes e Casos
 
-Você fez uma escolha inteligente ao colocar a inserção dos casos dentro do seed de agentes, para garantir que os agentes existam antes dos casos (por causa da foreign key). Porém, o arquivo `db/seeds/casos.js` está vazio, o que pode gerar confusão.
+Você implementou a atualização (PUT) e deleção (DELETE) para agentes e casos, mas percebi que as operações de PUT para agentes e casos não estão funcionando corretamente.
 
-**Sugestão:**  
-- Deixe um comentário claro no seed `casos.js` explicando que os casos são inseridos no seed de agentes para evitar confusão futura.  
-- Garanta que o comando `npx knex seed:run` está rodando os seeds na ordem correta (geralmente o Knex executa em ordem alfabética).  
-- Se quiser, pode renomear os arquivos de seed para prefixar com números (`01_agentes.js`, `02_casos.js`) para controlar a ordem explicitamente.  
+Ao analisar o controller `agentesController.js` e o repository `agentesRepository.js`, seu código está correto na lógica, mas pode estar faltando um detalhe importante:  
 
-Para entender melhor como popular tabelas com seeds, veja este vídeo:  
-👉 http://googleusercontent.com/youtube.com/knex-seeds  
+- Na função `update` do repository, você remove o campo `id` do objeto `dadosAgente` para evitar alterações no ID, o que é ótimo.  
+- Porém, você não está validando se o agente existe antes de tentar atualizar. Se o agente não existir, o Knex retorna `undefined`, e seu controller trata isso corretamente retornando 404. Isso está certo!
 
----
+O problema pode estar no payload que chega para o PUT: ele pode estar vazio, mal formatado ou com campos inválidos. Seu controller já faz validações rigorosas para esses casos, mas o teste indica que o PUT está falhando para payloads corretos também.
 
-### 4. **Atualização via PUT — tratamento do payload**
-
-Percebi que os testes de atualização completa (PUT) dos agentes e casos falharam, especialmente quando o payload está em formato incorreto.
-
-No seu controller, você tem uma validação rigorosa que verifica se o corpo da requisição é um objeto, não vazio, e se os campos são válidos. Isso está certo, mas pode estar faltando validar se **todos os campos obrigatórios estão presentes no PUT**, já que PUT deve substituir o recurso inteiro.
-
-Por exemplo, no `updateAgente`:
+**Possível causa raiz:**  
+No seu controller, você tem essa linha para validar o corpo da requisição:
 
 ```js
 if (!dadosAgente || typeof dadosAgente !== 'object' || Array.isArray(dadosAgente)) {
@@ -87,97 +83,196 @@ if (!dadosAgente || typeof dadosAgente !== 'object' || Array.isArray(dadosAgente
 }
 ```
 
-Mas não há uma checagem explícita para garantir que `nome`, `dataDeIncorporacao` e `cargo` estejam presentes no PUT (já que PATCH permite atualização parcial, mas PUT não).
+Se o cliente enviar um corpo vazio (`{}`) para o PUT, isso pode estar bloqueando a atualização correta, pois para PUT espera-se um objeto completo. Além disso, no PUT, campos obrigatórios devem estar presentes. No seu código, não há validação explícita para exigir todos os campos no PUT, apenas que o corpo não seja vazio e que os campos sejam válidos.
 
 **Sugestão:**  
-- Para o método PUT, exija que o payload contenha todos os campos obrigatórios (mesmo que vazios não sejam aceitos).  
-- Para PATCH, mantenha a flexibilidade de campos parciais.  
-- Isso alinha seu código com o padrão REST e evita erros de atualização incompleta.  
+- No PUT, implemente uma validação que garanta que todos os campos obrigatórios (`nome`, `dataDeIncorporacao`, `cargo` para agentes) estejam presentes e válidos.  
+- No PATCH, a validação pode ser mais flexível, aceitando atualização parcial.  
+- Isso evitará que o PUT aceite payloads incompletos que causam falhas.
+
+Exemplo de validação para PUT no `updateAgente`:
+
+```js
+if (!dadosAgente.nome || !dadosAgente.dataDeIncorporacao || !dadosAgente.cargo) {
+    return res.status(400).json({
+        status: 400,
+        message: "Parâmetros inválidos",
+        errors: {
+            nome: !dadosAgente.nome ? "Campo 'nome' é obrigatório" : null,
+            dataDeIncorporacao: !dadosAgente.dataDeIncorporacao ? "Campo 'dataDeIncorporacao' é obrigatório" : null,
+            cargo: !dadosAgente.cargo ? "Campo 'cargo' é obrigatório" : null
+        }
+    });
+}
+```
+
+O mesmo vale para o controller de casos (`casosController.js`) no método `updateCaso`.
 
 ---
 
-### 5. **Filtros e buscas**
+### 4. Endpoint para Buscar Agente Responsável por Caso
 
-Você implementou filtros por status e agente_id nos casos, e isso está ótimo! Porém, os testes de busca por palavra-chave no título/descrição e filtragem por data de incorporação dos agentes com ordenação (asc e desc) falharam.
+Você criou a rota `/casos/:caso_id/agente` e o método correspondente no controller está bem estruturado para buscar o caso e depois o agente pelo `agente_id` do caso.
 
-No `agentesRepository.js`, você tem um método `findAllSorted` que só ordena por `dataDeIncorporacao` ou `-dataDeIncorporacao`, mas no controller você só chama isso se houver o parâmetro `sort`.
+Porém, esse endpoint está falhando nos testes bônus.
 
-No entanto, não vi nenhuma implementação para filtrar agentes por data de incorporação, só ordenação. Além disso, o filtro por cargo e sort parecem ser mutuamente exclusivos, e isso pode limitar a flexibilidade.
+**Possível causa raiz:**  
+- No seu `casosRepository.js`, o método `findById` está correto, usando join para trazer o agente junto, mas você não está utilizando essa informação no controller para otimizar.  
+- Além disso, pode ser que o `caso_id` esteja vindo como string e precise ser convertido para número para a consulta funcionar corretamente (dependendo da configuração do banco).  
+- Outra possibilidade é que o relacionamento entre `casos` e `agentes` não esteja funcionando por problema nas migrations ou seeds (veja ponto 1).
 
 **Sugestão:**  
-- Implemente filtros combinados, permitindo filtrar agentes por cargo e ordenar por data de incorporação ao mesmo tempo.  
-- Para busca por palavra-chave nos casos, seu método `search` no repository está correto, mas garanta que o endpoint `/casos` aceite o parâmetro `q` e o repasse para o repository (vi que está OK).  
-- Confira se o parâmetro `sort` está sendo interpretado corretamente, especialmente para ordenação decrescente (com `-` no início).  
+- Confirme que a foreign key `agente_id` está declarada corretamente na migration.  
+- No controller, você pode simplificar a busca do agente pelo join na query do caso, evitando duas consultas.  
+- Exemplo:
 
-Para entender melhor consultas complexas com Knex e filtros, recomendo:  
-👉 https://knexjs.org/guide/query-builder.html  
+```js
+const casoComAgente = await casosRepository.findById(caso_id);
+if (!casoComAgente) {
+    return res.status(404).json({ status: 404, message: 'Caso não encontrado' });
+}
+if (!casoComAgente.agente_id) {
+    return res.status(404).json({ status: 404, message: 'Agente responsável não encontrado' });
+}
+
+res.status(200).json({
+    id: casoComAgente.agente_id,
+    nome: casoComAgente.agente_nome,
+    // outros campos do agente, se necessário
+});
+```
 
 ---
 
-### 6. **Endpoint para buscar agente responsável por caso**
+### 5. Falha nas Buscas com Filtros e Sorting para Agentes
 
-O endpoint `/casos/:caso_id/agente` está declarado na rota e implementado no controller, mas os testes indicam que ele não está funcionando corretamente.
+Você implementou filtros por `cargo` e sorting por `dataDeIncorporacao` no controller e repository de agentes, mas os testes bônus indicam que a filtragem por data de incorporação com ordenação crescente e decrescente não está funcionando.
 
-No controller, você busca o caso pelo `caso_id`, e depois o agente pelo `caso.agente_id`. Isso está correto, mas é importante garantir que o `caso_id` seja passado corretamente na URL e que o método HTTP seja GET.
+Analisando o método `findAllSorted` no `agentesRepository.js`:
 
-Também verifique se o seu banco de dados tem os dados corretamente inseridos e se a foreign key está funcionando.
+```js
+async function findAllSorted(sortBy) {
+    if (sortBy === 'dataDeIncorporacao') {
+        return await db('agentes').orderBy('dataDeIncorporacao', 'asc');
+    }
+    
+    if (sortBy === '-dataDeIncorporacao') {
+        return await db('agentes').orderBy('dataDeIncorporacao', 'desc');
+    }
+    
+    return await db('agentes').select('*');
+}
+```
 
----
+E no controller, você verifica:
 
-### 7. **Arquivos e estrutura geral**
+```js
+const { cargo, sort } = req.query;
 
-Sua estrutura está muito próxima do esperado, mas notei que você tem um arquivo `knexfile.js` repetido na listagem, talvez por erro de cópia, e o nome da migration com duplo `.js`. Além disso, o `.env` está presente no projeto, o que não é permitido.
+if (cargo) {
+    agentes = await agentesRepository.findByCargo(cargo);
+} else if (sort) {
+    agentes = await agentesRepository.findAllSorted(sort);
+} else {
+    agentes = await agentesRepository.findAll();
+}
+```
+
+**Problema:**  
+Se o cliente enviar `?sort=dataDeIncorporacao`, o filtro funciona, mas e se quiser filtrar por cargo E ordenar? Seu código atual prioriza cargo sobre sort, ignorando o sort quando cargo está presente.
 
 **Sugestão:**  
-- Remova o `.env` do repositório e coloque no `.gitignore`.  
-- Ajuste o nome da migration para apenas um `.js`.  
-- Garanta que o arquivo `knexfile.js` esteja na raiz do projeto, e não duplicado em outro lugar.  
+- Combine os filtros para permitir, por exemplo, `?cargo=inspetor&sort=-dataDeIncorporacao`.  
+- Isso pode ser feito criando um método que aceite ambos os parâmetros e construa a query dinamicamente.
 
-Para entender melhor a arquitetura MVC e organização de projetos Node.js, este vídeo é excelente:  
-👉 https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH  
+Exemplo simplificado:
 
----
+```js
+async function findByCargoSorted(cargo, sortBy) {
+    let query = db('agentes').where({ cargo });
+    if (sortBy === 'dataDeIncorporacao') {
+        query = query.orderBy('dataDeIncorporacao', 'asc');
+    } else if (sortBy === '-dataDeIncorporacao') {
+        query = query.orderBy('dataDeIncorporacao', 'desc');
+    }
+    return await query.select('*');
+}
+```
 
-## 📝 Resumo rápido para você focar:
+No controller:
 
-- **Corrija o nome do arquivo de migration** para evitar erros na execução das migrations.  
-- **Garanta que as migrations criem as tabelas `agentes` e `casos` corretamente**, com chaves primárias e estrangeiras.  
-- **Remova o `.env` do repositório** e configure as variáveis de ambiente localmente.  
-- **Valide o payload do PUT para exigir todos os campos obrigatórios**, garantindo atualização completa.  
-- **Implemente filtros combinados e ordenação para agentes**, e revise a busca por palavras-chave nos casos.  
-- **Verifique a implementação do endpoint `/casos/:caso_id/agente`** para garantir que retorna o agente correto.  
-- **Mantenha a estrutura de pastas conforme o padrão esperado** e evite arquivos duplicados ou mal nomeados.  
-
----
-
-EstevaoFR10, você está no caminho certo! 🚀 Seu código mostra que você entende conceitos avançados de API, validação e banco de dados. Com esses ajustes, sua API vai ficar muito mais robusta e alinhada com as melhores práticas. Continue firme, pois a persistência de dados é um passo gigante rumo a sistemas profissionais! 💪
-
-Qualquer dúvida, estou aqui para ajudar. Vamos juntos nessa jornada! 🤝✨
-
----
-
-### Recursos recomendados para você estudar e aprofundar:
-
-- Configuração de Banco com Docker e Knex:  
-  http://googleusercontent.com/youtube.com/docker-postgresql-node  
-- Migrations com Knex:  
-  https://knexjs.org/guide/migrations.html  
-- Query Builder Knex:  
-  https://knexjs.org/guide/query-builder.html  
-- Seeds Knex:  
-  http://googleusercontent.com/youtube.com/knex-seeds  
-- Arquitetura MVC em Node.js:  
-  https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH  
-- Validação e tratamento de erros HTTP:  
-  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400  
-  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404  
+```js
+if (cargo && sort) {
+    agentes = await agentesRepository.findByCargoSorted(cargo, sort);
+} else if (cargo) {
+    agentes = await agentesRepository.findByCargo(cargo);
+} else if (sort) {
+    agentes = await agentesRepository.findAllSorted(sort);
+} else {
+    agentes = await agentesRepository.findAll();
+}
+```
 
 ---
 
-Continue codando com paixão e curiosidade! 🚀💙
+### 6. Mensagens de Erro Customizadas para Argumentos Inválidos
 
-Abraços,  
-Seu Code Buddy 🕵️‍♂️✨
+Você fez um ótimo trabalho implementando mensagens customizadas de erro para validação de campos obrigatórios e formatos, mas percebi que para alguns filtros e query params inválidos (como `cargo` ou `status` com valores errados), a API não retorna mensagens personalizadas.
+
+**Por que isso importa?**  
+Ter mensagens claras ajuda o cliente da API a entender o que está errado e corrigi-lo, além de deixar sua API mais profissional.
+
+**Sugestão:**  
+- No controller, valide os valores dos query params e retorne 400 com mensagens customizadas se forem inválidos.  
+- Por exemplo, no filtro por status no `casosController`:
+
+```js
+if (status && !['aberto', 'solucionado'].includes(status)) {
+    return res.status(400).json({
+        status: 400,
+        message: "Parâmetros inválidos",
+        errors: {
+            status: "O campo 'status' pode ser somente 'aberto' ou 'solucionado'"
+        }
+    });
+}
+```
+
+- Faça o mesmo para o filtro `cargo` no `agentesController`, validando os cargos permitidos.
+
+---
+
+## Resumo Rápido dos Pontos para Você Focar 🔍
+
+- **Corrigir nome e conteúdo da migration** para garantir que as tabelas e constraints estão criadas corretamente.  
+- **Verificar se o banco está rodando e a conexão via Knex está funcionando** (confira `.env` e Docker).  
+- **Aprimorar validação no PUT** para exigir todos os campos obrigatórios, evitando payloads incompletos.  
+- **Ajustar endpoint `/casos/:caso_id/agente`** para otimizar consulta e garantir resposta correta.  
+- **Permitir combinação de filtros e sorting para agentes** para atender casos mais complexos de query.  
+- **Implementar mensagens customizadas de erro para query params inválidos** em filtros e buscas.  
+
+---
+
+## Para continuar evoluindo 🚀
+
+Você está muito próximo de ter uma API robusta e profissional! Continue investindo em:
+
+- Validação rigorosa e clara para todos os endpoints.  
+- Testes manuais para garantir que todos os fluxos (criação, atualização, deleção, filtros) funcionam.  
+- Explorar mais o Knex para consultas complexas e otimização.  
+- Aprender mais sobre boas práticas de API REST e tratamento de erros.
+
+Aqui vão alguns recursos que vão te ajudar demais nessa jornada:  
+📚 [Knex migrations e seeds](https://knexjs.org/guide/migrations.html)  
+📚 [Configuração Docker + PostgreSQL + Node.js](http://googleusercontent.com/youtube.com/docker-postgresql-node)  
+📚 [Validação e tratamento de erros em APIs Node.js](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)  
+📚 [Arquitetura MVC para Node.js](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)  
+
+---
+
+Estou impressionado com sua entrega e com o quanto você já avançou! 💪 Continue firme, corrigindo esses detalhes e logo logo sua API estará tinindo! Se precisar, pode contar comigo para destrinchar qualquer dúvida.
+
+Abraço e até a próxima! 👊😊
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
