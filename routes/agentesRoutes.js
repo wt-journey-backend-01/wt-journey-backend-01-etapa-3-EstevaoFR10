@@ -8,6 +8,9 @@ router.get('/', agentesController.getAllAgentes);
 // Rota para obter um agente específico
 router.get('/:id', agentesController.getAgenteById);
 
+// Rota para listar todos os casos de um agente
+router.get('/:id/casos', agentesController.getCasosDoAgente);
+
 // Rota para criar um novo agente
 router.post('/', agentesController.createAgente);
 

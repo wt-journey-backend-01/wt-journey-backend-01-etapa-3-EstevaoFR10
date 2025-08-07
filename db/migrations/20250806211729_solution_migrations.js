@@ -8,16 +8,15 @@ exports.up = function(knex) {
             table.increments('id').primary(); // Auto-increment ID
             table.string('nome').notNullable(); // Nome do agente
             table.date('dataDeIncorporacao').notNullable(); // Data de incorporação
-            table.enu('cargo', ['delegado', 'inspetor']).notNullable(); // Cargo como ENUM
+            table.string('cargo').notNullable(); // Cargo como STRING conforme README
         })
         .createTable('casos', function(table) {
             table.increments('id').primary(); // Auto-increment ID
-            table.string('titulo', 255).notNullable(); // Título do caso
-            table.text('descricao').notNullable(); // Descrição do caso
-            table.enu('status', ['aberto', 'solucionado']).notNullable(); // Status
-            table.integer('agente_id').unsigned().notNullable() // agente_id NOT NULL
-                .references('id').inTable('agentes')
-                .onDelete('RESTRICT'); // Referência ao agente responsável com restrição
+            table.string('titulo').notNullable(); // Título do caso
+            table.string('descricao').notNullable(); // Descrição do caso como STRING
+            table.string('status').notNullable(); // Status como STRING
+            table.integer('agente_id').unsigned().notNullable()
+                .references('id').inTable('agentes'); // Foreign key obrigatória
         });
 };
 

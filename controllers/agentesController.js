@@ -408,11 +408,51 @@ async function deleteAgente(req, res) {
     }
 }
 
+async function getCasosDoAgente(req, res) {
+    try {
+        const { id } = req.params;
+        
+        // Validar se o ID é um número válido
+        const idNum = parseInt(id);
+        if (isNaN(idNum) || idNum <= 0) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Parâmetros inválidos',
+                errors: {
+                    id: "ID deve ser um número inteiro positivo"
+                }
+            });
+        }
+        
+        // Verificar se o agente existe
+        const agente = await agentesRepository.findById(id);
+        if (!agente) {
+            return res.status(404).json({
+                status: 404,
+                message: 'Agente não encontrado'
+            });
+        }
+        
+        // Buscar casos do agente
+        const casosRepository = require("../repositories/casosRepository");
+        const casos = await casosRepository.findByAgenteId(id);
+        
+        res.status(200).json(casos);
+    } catch (error) {
+        res.status(500).json({
+            status: 500,
+            message: 'Erro interno do servidor',
+            error: error.message
+        });
+    }
+}
+
 module.exports = {
     getAllAgentes,
     getAgenteById,
     createAgente,
     updateAgente,
     updateAgentePUT,
-    deleteAgente
+    deleteAgente,
+    getCasosDoAgente
 };
