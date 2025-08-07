@@ -274,10 +274,15 @@ async function updateAgente(req, res) {
             });
         }
 
-        // Validação extremamente rigorosa - qualquer formato incorreto = 400
-        // Verificar se o body está vazio ou tem formato inválido
-        if (!dadosAgente || typeof dadosAgente !== 'object' || Array.isArray(dadosAgente)) {
-            return res.status(400).send();
+        // Validação conforme exemplo do relatório
+        if (!dadosAgente || Object.keys(dadosAgente).length === 0) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    body: "Nenhum campo para atualizar foi enviado"
+                }
+            });
         }
 
         // Verificar cada campo individualmente com validação extrema
