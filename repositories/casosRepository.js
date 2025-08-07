@@ -1,16 +1,12 @@
 const db = require('../db/db');
 
 async function findAll() {
-    return await db('casos')
-        .select('casos.*', 'agentes.nome as agente_nome')
-        .leftJoin('agentes', 'casos.agente_id', 'agentes.id');
+    return await db('casos').select('*');
 }
 
 async function findById(id) {
     return await db('casos')
-        .select('casos.*', 'agentes.nome as agente_nome')
-        .leftJoin('agentes', 'casos.agente_id', 'agentes.id')
-        .where('casos.id', id)
+        .where('id', id)
         .first();
 }
 
@@ -52,47 +48,39 @@ async function deleteById(id) {
 
 async function findByAgenteId(agente_id) {
     return await db('casos')
-        .select('casos.*', 'agentes.nome as agente_nome')
-        .leftJoin('agentes', 'casos.agente_id', 'agentes.id')
-        .where('casos.agente_id', agente_id);
+        .where('agente_id', agente_id);
 }
 
 async function findByStatus(status) {
     return await db('casos')
-        .select('casos.*', 'agentes.nome as agente_nome')
-        .leftJoin('agentes', 'casos.agente_id', 'agentes.id')
-        .where('casos.status', status);
+        .where('status', status);
 }
 
 async function search(query) {
     const searchTerm = `%${query.toLowerCase()}%`;
     return await db('casos')
-        .select('casos.*', 'agentes.nome as agente_nome')
-        .leftJoin('agentes', 'casos.agente_id', 'agentes.id')
         .where(function() {
-            this.whereRaw('LOWER(casos.titulo) LIKE ?', [searchTerm])
-                .orWhereRaw('LOWER(casos.descricao) LIKE ?', [searchTerm]);
+            this.whereRaw('LOWER(titulo) LIKE ?', [searchTerm])
+                .orWhereRaw('LOWER(descricao) LIKE ?', [searchTerm]);
         });
 }
 
 async function findByFilters({ agente_id, status, q }) {
-    let query = db('casos')
-        .select('casos.*', 'agentes.nome as agente_nome')
-        .leftJoin('agentes', 'casos.agente_id', 'agentes.id');
+    let query = db('casos');
 
     if (agente_id) {
-        query = query.where('casos.agente_id', agente_id);
+        query = query.where('agente_id', agente_id);
     }
 
     if (status) {
-        query = query.where('casos.status', status);
+        query = query.where('status', status);
     }
 
     if (q) {
         const searchTerm = `%${q.toLowerCase()}%`;
         query = query.andWhere(function () {
-            this.whereRaw('LOWER(casos.titulo) LIKE ?', [searchTerm])
-                .orWhereRaw('LOWER(casos.descricao) LIKE ?', [searchTerm]);
+            this.whereRaw('LOWER(titulo) LIKE ?', [searchTerm])
+                .orWhereRaw('LOWER(descricao) LIKE ?', [searchTerm]);
         });
     }
 
