@@ -15,7 +15,7 @@ exports.up = function(knex) {
             table.string('titulo', 255).notNullable(); // Título do caso
             table.text('descricao').notNullable(); // Descrição do caso
             table.enu('status', ['aberto', 'solucionado']).notNullable(); // Status
-            table.integer('agente_id').unsigned().references('id').inTable('agentes'); // Referência ao agente responsável
+            table.integer('agente_id').unsigned().references('id').inTable('agentes').onDelete('RESTRICT'); // Referência ao agente responsável com restrição
         });
 };
 

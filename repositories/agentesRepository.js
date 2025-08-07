@@ -22,6 +22,12 @@ async function update(id, dadosAgente) {
         return null; // Não há dados para atualizar
     }
     
+    // Verificar se o agente existe antes de atualizar
+    const agenteExistente = await findById(id);
+    if (!agenteExistente) {
+        return null;
+    }
+    
     const [agenteAtualizado] = await db('agentes')
         .where({ id })
         .update(dadosLimpos)
@@ -31,11 +37,18 @@ async function update(id, dadosAgente) {
 
 async function deleteById(id) {
     const agente = await findById(id);
-    if (agente) {
-        await db('agentes').where({ id }).del();
-        return agente;
+    if (!agente) {
+        return null;
     }
-    return null;
+    
+    // Verificar se existem casos vinculados a este agente
+    const casosVinculados = await db('casos').where('agente_id', id).first();
+    if (casosVinculados) {
+        throw new Error('FOREIGN_KEY_CONSTRAINT');
+    }
+    
+    await db('agentes').where({ id }).del();
+    return agente;
 }
 
 async function findByCargo(cargo) {

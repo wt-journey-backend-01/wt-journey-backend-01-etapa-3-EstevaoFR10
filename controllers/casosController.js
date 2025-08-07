@@ -112,6 +112,14 @@ async function getAgenteByCasoId(req, res) {
             });
         }
 
+        // Verificar se o caso tem agente_id
+        if (!caso.agente_id) {
+            return res.status(404).json({
+                status: 404,
+                message: 'Agente responsável não encontrado'
+            });
+        }
+
         const agente = await agentesRepository.findById(caso.agente_id);
 
         if (!agente) {

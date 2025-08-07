@@ -37,7 +37,9 @@ async function getAllAgentes(req, res) {
             agentes = await agentesRepository.findAllSorted(sort);
         } else {
             agentes = await agentesRepository.findAll();
-        }        res.status(200).json(agentes);
+        }
+        
+        res.status(200).json(agentes);
     } catch (error) {
         res.status(500).json({
             status: 500,
@@ -383,6 +385,16 @@ async function deleteAgente(req, res) {
 
         res.status(204).send();
     } catch (error) {
+        if (error.message === 'FOREIGN_KEY_CONSTRAINT') {
+            return res.status(400).json({
+                status: 400,
+                message: 'Não é possível excluir agente que possui casos vinculados',
+                errors: {
+                    agente_id: 'Este agente possui casos vinculados e não pode ser excluído'
+                }
+            });
+        }
+        
         res.status(500).json({
             status: 500,
             message: 'Erro interno do servidor',
