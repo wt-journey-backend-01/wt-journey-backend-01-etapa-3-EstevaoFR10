@@ -75,6 +75,21 @@ async function createAgente(req, res) {
     try {
         const dadosAgente = req.body;
 
+        // Verificar campos válidos
+        const camposValidos = ['nome', 'dataDeIncorporacao', 'cargo'];
+        const camposRecebidos = Object.keys(dadosAgente);
+        const camposInvalidos = camposRecebidos.filter(campo => !camposValidos.includes(campo));
+        
+        if (camposInvalidos.length > 0) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    [camposInvalidos[0]]: `Campo '${camposInvalidos[0]}' não é permitido`
+                }
+            });
+        }
+
         // Validações básicas
         if (!dadosAgente.nome || !dadosAgente.dataDeIncorporacao || !dadosAgente.cargo) {
             return res.status(400).json({
@@ -137,6 +152,21 @@ async function updateAgentePUT(req, res) {
                 message: "Parâmetros inválidos",
                 errors: {
                     id: "Campo 'id' não pode ser alterado"
+                }
+            });
+        }
+
+        // Verificar campos válidos
+        const camposValidos = ['nome', 'dataDeIncorporacao', 'cargo'];
+        const camposRecebidos = Object.keys(dadosAgente);
+        const camposInvalidos = camposRecebidos.filter(campo => !camposValidos.includes(campo));
+        
+        if (camposInvalidos.length > 0) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    [camposInvalidos[0]]: `Campo '${camposInvalidos[0]}' não é permitido`
                 }
             });
         }
