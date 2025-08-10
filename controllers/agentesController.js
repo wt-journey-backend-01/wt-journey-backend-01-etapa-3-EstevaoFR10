@@ -37,7 +37,9 @@ async function getAllAgentes(req, res) {
             agentes = await agentesRepository.findAllSorted(sort);
         } else {
             agentes = await agentesRepository.findAll();
-        }        res.status(200).json(agentes);
+        }
+        
+        res.status(200).json(agentes);
     } catch (error) {
         res.status(500).json({
             status: 500,
@@ -73,6 +75,17 @@ async function createAgente(req, res) {
     try {
         const dadosAgente = req.body;
 
+        // Verificar se está tentando definir o ID
+        if (dadosAgente.id !== undefined) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    id: "Campo 'id' não pode ser definido na criação"
+                }
+            });
+        }
+
         // Validações básicas
         if (!dadosAgente.nome || !dadosAgente.dataDeIncorporacao || !dadosAgente.cargo) {
             return res.status(400).json({
@@ -82,6 +95,17 @@ async function createAgente(req, res) {
                     nome: !dadosAgente.nome ? "Campo 'nome' é obrigatório" : null,
                     dataDeIncorporacao: !dadosAgente.dataDeIncorporacao ? "Campo 'dataDeIncorporacao' é obrigatório" : null,
                     cargo: !dadosAgente.cargo ? "Campo 'cargo' é obrigatório" : null
+                }
+            });
+        }
+
+        // Validar cargo
+        if (!['delegado', 'inspetor'].includes(dadosAgente.cargo)) {
+            return res.status(400).json({
+                status: 400,
+                message: "Parâmetros inválidos",
+                errors: {
+                    cargo: "O campo 'cargo' pode ser somente 'delegado' ou 'inspetor'"
                 }
             });
         }
